@@ -1,45 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Map, { Marker, Popup } from 'react-map-gl/maplibre';
+import Map from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { Canvas } from '@react-three/fiber';
-import { Box, MeshDistortMaterial } from '@react-three/drei';
-
-function EmissionBar({ total, traffic, infra }: { total: number, traffic: number, infra: number }) {
-  // Normalize sizes (min 0.5, max roughly 3-4 based on 0-100 scale)
-  const trafficHeight = Math.max(0.5, (traffic / 100) * 4);
-  const infraHeight = Math.max(0.5, (infra / 100) * 4);
-  
-  // Colors based on severity
-  const trafficColor = traffic > 70 ? '#FF2A5F' : (traffic > 40 ? '#FFD600' : '#FF8A65');
-  const infraColor = infra > 70 ? '#00E5FF' : (infra > 40 ? '#4dd0e1' : '#00E676');
-
-  return (
-    <Canvas camera={{ position: [0, 3, 6], fov: 45 }} style={{ width: 80, height: 120, pointerEvents: 'none' }}>
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[5, 10, 5]} intensity={1.5} />
-      
-      {/* Traffic Bar */}
-      <group position={[-0.4, (trafficHeight / 2) - 1, 0]}>
-        <Box args={[0.4, trafficHeight, 0.4]}>
-          <MeshDistortMaterial color={trafficColor} emissive={trafficColor} emissiveIntensity={0.8} distort={traffic > 50 ? 0.3 : 0.1} speed={traffic > 50 ? 4 : 2} />
-        </Box>
-      </group>
-
-      {/* Infrastructure Bar */}
-      <group position={[0.4, (infraHeight / 2) - 1, 0]}>
-        <Box args={[0.4, infraHeight, 0.4]}>
-          <MeshDistortMaterial color={infraColor} emissive={infraColor} emissiveIntensity={0.8} distort={0.2} speed={2} />
-        </Box>
-      </group>
-    </Canvas>
-  );
-}
+import { DeckGL } from '@deck.gl/react';
+import { ScatterplotLayer } from '@deck.gl/layers';
 
 export default function MapOverlay() {
   const [data, setData] = useState<any[]>([]);
-  const [selectedZone, setSelectedZone] = useState<any | null>(null);
 
   useEffect(() => {
     // Connect to Server-Sent Events (SSE) for real-time API integrations
@@ -53,77 +21,71 @@ export default function MapOverlay() {
     return () => evtSource.close();
   }, []);
 
+  const layer = new ScatterplotLayer({
+    id: 'emissions-scatterplot',
+    data,
+    pickable: true,
+    opacity: 0.9,
+    stroked: true,
+    filled: true,
+    radiusScale: 1000,
+    radiusMinPixels: 10,
+    radiusMaxPixels: 50,
+    lineWidthMinPixels: 2,
+    getPosition: (d: any) => [d.lng, d.lat],
+    getFillColor: (d: any) => {
+        if (d.emissionPercentage > 60) return [255, 0, 0]; // Red
+        if (d.emissionPercentage > 30) return [255, 215, 0]; // Yellow
+        return [0, 200, 0]; // Green
+    },
+    getLineColor: [255, 255, 255, 100],
+    getRadius: (d: any) => Math.max(10, d.emissionPercentage),
+    transitions: {
+        getRadius: { duration: 500 },
+        getFillColor: { duration: 500 }
+    }
+  });
+
   return (
     <div className="w-full h-full min-h-[500px] relative rounded-2xl overflow-hidden glass-panel border border-[#ffffff10]">
-      <Map
+      <DeckGL
         initialViewState={{
-          longitude: 77.2090,
-          latitude: 28.6139,
-          zoom: 11,
-          pitch: 60,
+          longitude: 20,
+          latitude: 30,
+          zoom: 2,
+          pitch: 30,
           bearing: 0
         }}
-        mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-        interactive
+        controller={true}
+        layers={[layer]}
+        getTooltip={({object}: any) => object && {
+            html: `
+              <div style="padding: 4px;">
+                <h3 style="font-weight: bold; font-size: 16px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 4px; color: #7B3FE4;">${object.zone}</h3>
+                <div style="font-size: 13px; color: #fff; margin-bottom: 4px;">Total Emissions: <strong>${object.emissionPercentage}%</strong></div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 2px;">
+                  <span>Traffic Index:</span> <span>${Math.round(object.trafficLevel)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.7);">
+                  <span>AQI (PM2.5):</span> <span>${Math.round(object.infrastructure)}</span>
+                </div>
+              </div>
+            `,
+            style: {
+                backgroundColor: 'rgba(10, 10, 10, 0.95)',
+                color: '#fff',
+                borderRadius: '8px',
+                border: '1px solid rgba(123, 63, 228, 0.4)',
+                boxShadow: '0 8px 32px rgba(123, 63, 228, 0.15)',
+                fontFamily: 'system-ui, sans-serif'
+            }
+        }}
       >
-        {data.map((zone, i) => (
-          <Marker 
-            key={i} 
-            longitude={zone.lng} 
-            latitude={zone.lat}
-            onClick={(e: any) => {
-              e.originalEvent.stopPropagation();
-              setSelectedZone(zone);
-            }}
-          >
-            {/* Real-time 3D Bar Marker */}
-            <div className="relative group cursor-pointer -mt-32 -ml-8 hover:scale-110 transition-transform">
-              <EmissionBar 
-                total={zone.totalEmissions} 
-                traffic={zone.trafficLevel} 
-                infra={zone.infrastructure} 
-              />
-              {/* Glowing base point */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-carbon-primary/50 blur-sm shadow-[0_0_15px_rgba(0,229,255,0.8)]" />
-            </div>
-          </Marker>
-        ))}
-
-        {selectedZone && (
-          <Popup
-            longitude={selectedZone.lng}
-            latitude={selectedZone.lat}
-            anchor="bottom"
-            onClose={() => setSelectedZone(null)}
-            closeButton={false}
-            offset={30}
-          >
-            <div className="p-3 space-y-3 min-w-[200px]">
-              <h4 className="font-bold text-carbon-primary text-lg border-b border-white/20 pb-2">{selectedZone.zone}</h4>
-              <div className="space-y-1">
-                <div className="text-xs text-white/80 flex justify-between items-center">
-                  <span>🚗 Traffic (TomTom):</span> 
-                  <span className="text-carbon-alert font-bold bg-carbon-alert/10 px-2 py-0.5 rounded">{selectedZone.trafficLevel}</span>
-                </div>
-                <div className="text-xs text-white/80 flex justify-between items-center">
-                  <span>🏢 Infra (OpenAQ):</span> 
-                  <span className="text-carbon-primary font-bold bg-carbon-primary/10 px-2 py-0.5 rounded">{selectedZone.infrastructure}</span>
-                </div>
-                <div className="text-xs text-white/80 flex justify-between items-center">
-                  <span>⚡ Energy:</span> 
-                  <span className="text-carbon-warn font-bold bg-carbon-warn/10 px-2 py-0.5 rounded">{selectedZone.energyUsage}</span>
-                </div>
-              </div>
-              <div className="pt-2 mt-2 border-t border-[#ffffff20] text-sm font-bold flex justify-between items-center">
-                <span>Total Emissions:</span> 
-                <span className={selectedZone.totalEmissions > 150 ? 'text-carbon-alert text-lg' : 'text-carbon-primary text-lg'}>
-                  {selectedZone.totalEmissions}
-                </span>
-              </div>
-            </div>
-          </Popup>
-        )}
-      </Map>
+        <Map
+          mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+          reuseMaps
+        />
+      </DeckGL>
     </div>
   );
 }

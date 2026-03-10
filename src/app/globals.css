@@ -3,16 +3,39 @@
 :root {
   --background: #000000;
   --foreground: #FFFFFF;
+  
+  --carbon-900: #000000;
+  --carbon-800: #0A0A0A;
+  --carbon-700: #141414;
+  --carbon-primary: #7B3FE4;
+  --carbon-alert: #FF0000;
+  --carbon-warn: #FFD700;
+  --carbon-success: #00C800;
 }
 
 @theme {
-  --color-carbon-900: #000000;
-  --color-carbon-800: #111111;
-  --color-carbon-700: #222222;
-  --color-carbon-primary: #FF0000;
-  --color-carbon-alert: #FF0000;
-  --color-carbon-warn: #FF0000;
-  --color-carbon-success: #FF0000;
+  --color-carbon-900: var(--carbon-900);
+  --color-carbon-800: var(--carbon-800);
+  --color-carbon-700: var(--carbon-700);
+  --color-carbon-primary: var(--carbon-primary);
+  --color-carbon-alert: var(--carbon-alert);
+  --color-carbon-warn: var(--carbon-warn);
+  --color-carbon-success: var(--carbon-success);
+}
+
+.light {
+  --background: #F3F4F6;
+  --foreground: #111827;
+  
+  --carbon-900: #FFFFFF;
+  --carbon-800: #F9FAFB;
+  --carbon-700: #E5E7EB;
+  
+  /* Retain brand colors */
+  --carbon-primary: #7B3FE4;
+  --carbon-alert: #DC2626;
+  --carbon-warn: #D97706;
+  --carbon-success: #16A34A;
 }
 
 body {
@@ -26,25 +49,37 @@ body {
 
 /* Glassmorphism utilities */
 .glass-panel {
-  background: rgba(19, 21, 26, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+.light .glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
 }
 
 .text-glow {
-  text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  text-shadow: 0 0 10px rgba(123, 63, 228, 0.5);
 }
 
 /* Mapbox overrides to fit dark theme */
 .maplibregl-popup-content,
 .mapboxgl-popup-content {
-  background: rgba(19, 21, 26, 0.9) !important;
+  background: rgba(10, 10, 10, 0.95) !important;
   color: white !important;
-  border: 1px solid rgba(0, 229, 255, 0.2);
+  border: 1px solid rgba(123, 63, 228, 0.4);
   border-radius: 8px !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  box-shadow: 0 8px 32px rgba(123, 63, 228, 0.15) !important;
+}
+
+.light .maplibregl-popup-content,
+.light .mapboxgl-popup-content {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #111827 !important;
 }
 .maplibregl-popup-tip,
 .mapboxgl-popup-tip {

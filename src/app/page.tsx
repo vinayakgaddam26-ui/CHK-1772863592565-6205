@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import SummaryCards from '@/components/SummaryCards';
 import MapOverlay from '@/components/MapOverlay';
-import Charts from '@/components/Charts';
 
 export default function Dashboard() {
   const [seeding, setSeeding] = useState(false);
@@ -49,6 +48,11 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-6 flex flex-col">
+          {/* 3D Spline Element */}
+          <div className="glass-panel rounded-2xl overflow-hidden min-h-[300px] border border-[#ffffff10] relative flex-1">
+            <iframe src='https://my.spline.design/earthdayandnight-r5mPoaK6GY7RIR7ylbQtJdgV/' frameBorder='0' width='100%' height='100%' className="absolute inset-0"></iframe>
+          </div>
+
           {/* Recommendations Area */}
           <div className="glass-panel rounded-2xl p-6 border border-[#ffffff10]">
             <h3 className="text-lg font-bold text-white mb-4">Mitigation Protocol</h3>
@@ -70,11 +74,7 @@ export default function Dashboard() {
             </ul>
           </div>
 
-          {/* Charts Area */}
-          <div className="glass-panel rounded-2xl p-6 border border-[#ffffff10] flex-1 flex flex-col items-start justify-center">
-             <h3 className="text-lg font-bold text-white mb-2">Trend Analyzer</h3>
-             <Charts />
-          </div>
+
         </div>
 
       </div>

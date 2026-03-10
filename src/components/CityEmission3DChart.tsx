@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Text, Float, MeshDistortMaterial, OrbitControls, Environment, Sphere } from '@react-three/drei';
+import { Text, Float, MeshDistortMaterial, OrbitControls, Environment, Box } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Data shapes
@@ -12,65 +12,74 @@ interface EmissionData {
 }
 
 // Inner animated mesh component
-function EmissionSpheres({ data }: { data: EmissionData }) {
+function EmissionBars({ data }: { data: EmissionData }) {
   const trafficRef = useRef<THREE.Mesh>(null);
   const infraRef = useRef<THREE.Mesh>(null);
   
-  // Normalize sizes (minimum size 1)
-  const trafficSize = Math.max(1, (data.trafficLevel / 100) * 3);
-  const infraSize = Math.max(1, (data.infrastructureScore / 100) * 3);
+  // Normalize sizes for the bar heights (Y-axis scale)
+  const trafficHeight = Math.max(0.5, (data.trafficLevel / 100) * 5);
+  const infraHeight = Math.max(0.5, (data.infrastructureScore / 100) * 5);
   
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
+    // Create a smooth floating/pulsing effect by modifying the Y position
     if (trafficRef.current) {
-      trafficRef.current.rotation.x = time * 0.2;
-      trafficRef.current.rotation.y = time * 0.3;
+        trafficRef.current.position.y = Math.sin(time * 2) * 0.1 + (trafficHeight / 2);
     }
     if (infraRef.current) {
-      infraRef.current.rotation.x = time * -0.1;
-      infraRef.current.rotation.y = time * -0.2;
+        infraRef.current.position.y = Math.sin(time * 2 + Math.PI) * 0.1 + (infraHeight / 2);
     }
   });
 
   return (
-    <group>
-      {/* Traffic Sphere - Red/Alert colored */}
-      <Float speed={2} rotationIntensity={0.5} floatIntensity={1} position={[-2, 0, 0]}>
-        <Sphere ref={trafficRef} args={[trafficSize, 64, 64]}>
+    <group position={[0, -2, 0]}>
+      {/* Traffic Bar - Red/Alert colored */}
+      <group position={[-2, 0, 0]}>
+        <Box ref={trafficRef} args={[1, trafficHeight, 1]}>
           <MeshDistortMaterial 
-            color="#FF2A5F" 
-            emissive="#FF2A5F" 
-            emissiveIntensity={0.5} 
+            color="#FF0000" 
+            emissive="#FF0000" 
+            emissiveIntensity={0.6} 
             envMapIntensity={1}
-            distort={data.trafficLevel > 50 ? 0.4 : 0.2} 
-            speed={data.trafficLevel > 50 ? 4 : 2} 
+            distort={0.15} 
+            speed={2} 
             roughness={0.2}
             metalness={0.8}
+            wireframe={false}
           />
-        </Sphere>
-        <Text position={[0, -trafficSize - 0.5, 0]} fontSize={0.4} color="#ffffff" anchorX="center" anchorY="middle">
+        </Box>
+        {/* Base shadow anchor */}
+        <mesh position={[0, 0, 0]} rotation-x={-Math.PI / 2}>
+           <planeGeometry args={[1.5, 1.5]} />
+           <meshBasicMaterial color="#FF0000" transparent opacity={0.2} />
+        </mesh>
+        <Text position={[0, -0.5, 0]} fontSize={0.35} color="#ffffff" anchorX="center" anchorY="middle">
           Traffic: {Math.round(data.trafficLevel)}
         </Text>
-      </Float>
+      </group>
 
-      {/* Infrastructure Sphere - Green/Success colored or Yellow based on severity */}
-      <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1} position={[2, 0, 0]}>
-        <Sphere ref={infraRef} args={[infraSize, 64, 64]}>
+      {/* Infrastructure Bar - Purple/Warn/Success colored depending on scale */}
+      <group position={[2, 0, 0]}>
+        <Box ref={infraRef} args={[1, infraHeight, 1]}>
           <MeshDistortMaterial 
-            color={data.infrastructureScore > 70 ? "#00E5FF" : (data.infrastructureScore > 40 ? "#FFD600" : "#00E676")} 
-            emissive={data.infrastructureScore > 70 ? "#00E5FF" : (data.infrastructureScore > 40 ? "#FFD600" : "#00E676")} 
-            emissiveIntensity={0.5} 
+            color={data.infrastructureScore > 60 ? "#FF0000" : (data.infrastructureScore > 30 ? "#FFD700" : "#7B3FE4")} 
+            emissive={data.infrastructureScore > 60 ? "#FF0000" : (data.infrastructureScore > 30 ? "#FFD700" : "#7B3FE4")} 
+            emissiveIntensity={0.6} 
             envMapIntensity={1}
-            distort={0.3} 
-            speed={3} 
+            distort={0.15} 
+            speed={2} 
             roughness={0.2}
             metalness={0.8}
           />
-        </Sphere>
-        <Text position={[0, -infraSize - 0.5, 0]} fontSize={0.4} color="#ffffff" anchorX="center" anchorY="middle">
+        </Box>
+        <mesh position={[0, 0, 0]} rotation-x={-Math.PI / 2}>
+           <planeGeometry args={[1.5, 1.5]} />
+           <meshBasicMaterial color={data.infrastructureScore > 60 ? "#FF0000" : (data.infrastructureScore > 30 ? "#FFD700" : "#7B3FE4")} transparent opacity={0.2} />
+        </mesh>
+        <Text position={[0, -0.5, 0]} fontSize={0.35} color="#ffffff" anchorX="center" anchorY="middle">
           Infra AQI: {Math.round(data.infrastructureScore)}
         </Text>
-      </Float>
+      </group>
     </group>
   );
 }
@@ -85,7 +94,7 @@ export default function CityEmission3DChart({ data }: { data: EmissionData }) {
         
         <Environment preset="city" />
         
-        <EmissionSpheres data={data} />
+        <EmissionBars data={data} />
         
         <OrbitControls 
           enableZoom={false} 

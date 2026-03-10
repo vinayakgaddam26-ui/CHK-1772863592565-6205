@@ -3,7 +3,7 @@ import { AlertTriangle, CloudRain, MapPin, TrendingUp, Zap } from 'lucide-react'
 
 export default function SummaryCards() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
       
       <Card 
         title="Total City Emissions" 
@@ -18,22 +18,6 @@ export default function SummaryCards() {
         value="12 Zones" 
         subtext="3 critical areas requiring action" 
         icon={<AlertTriangle className="w-6 h-6 text-carbon-warn" />} 
-        trend="down"
-      />
-
-      <Card 
-        title="Highest Emitter" 
-        value="Industrial Park" 
-        subtext="Energy Grid Overload" 
-        icon={<MapPin className="w-6 h-6 text-carbon-alert" />} 
-        trend="up"
-      />
-
-      <Card 
-        title="Mitigation ETA" 
-        value="2.5 Hours" 
-        subtext="Grid rebalancing in progress" 
-        icon={<Zap className="w-6 h-6 text-carbon-success" />} 
         trend="down"
       />
 

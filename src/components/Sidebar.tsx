@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { LayoutDashboard, Map, Settings, Activity } from 'lucide-react';
+import { LayoutDashboard, Map, Settings, Activity, TreePine } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Sidebar() {
@@ -13,8 +13,9 @@ export default function Sidebar() {
       
       <nav className="flex-1 px-4 space-y-2 mt-4">
         <NavItem href="/" icon={<LayoutDashboard />} label="Dashboard" active />
-        <NavItem href="#" icon={<Map />} label="City Map" />
-        <NavItem href="#" icon={<Activity />} label="Analytics" />
+        <NavItem href="/city-map" icon={<Map />} label="City Map" />
+        <NavItem href="/analytics" icon={<Activity />} label="Analytics" />
+        <NavItem href="/suggestions" icon={<TreePine />} label="Suggestions" />
       </nav>
 
       <div className="p-4 border-t border-[#ffffff10]">
@@ -26,7 +27,7 @@ export default function Sidebar() {
 
 function NavItem({ href, icon, label, active = false }: { href: string, icon: React.ReactNode, label: string, active?: boolean }) {
   return (
-    <Link href={href} className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${active ? 'bg-carbon-primary/10 text-carbon-primary shadow-[0_0_15px_rgba(0,229,255,0.2)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+    <Link href={href} className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${active ? 'bg-carbon-primary/15 text-carbon-primary shadow-[0_0_20px_rgba(123,63,228,0.3)] border border-carbon-primary/30' : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'}`}>
       {icon}
       <span className="font-medium">{label}</span>
     </Link>

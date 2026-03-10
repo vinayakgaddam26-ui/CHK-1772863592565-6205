@@ -6,12 +6,16 @@ export async function GET(req: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
+      let isClosed = false;
       
       const sendData = async () => {
+        if (isClosed) return;
         try {
           const data = await fetchLiveEmissions();
+          if (isClosed) return;
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ success: true, data })}\n\n`));
         } catch (err: any) {
+          if (isClosed) return;
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ success: false, error: err.message })}\n\n`));
         }
       };
@@ -25,8 +29,11 @@ export async function GET(req: Request) {
       }, 5000);
 
       req.signal.addEventListener('abort', () => {
+        isClosed = true;
         clearInterval(interval);
-        controller.close();
+        try {
+            controller.close();
+        } catch (e) {}
       });
     }
   });
