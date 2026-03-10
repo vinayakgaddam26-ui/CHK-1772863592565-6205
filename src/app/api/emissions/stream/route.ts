@@ -1,4 +1,4 @@
-import { fetchLiveEmissions } from '@/lib/integrations';
+﻿import { fetchLiveEmissions } from '@/lib/integrations';
 
 export const dynamic = 'force-dynamic';
 

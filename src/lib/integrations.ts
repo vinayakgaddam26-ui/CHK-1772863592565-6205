@@ -1,7 +1,5 @@
-import { mockZones } from '@/app/api/emissions/route';
-
 const TOMTOM_API_KEY = process.env.TOMTOM_API_KEY || '';
-const OPENAQ_API_KEY = process.env.OPENAQ_API_KEY || ''; // Optional
+const OPENAQ_API_KEY = process.env.OPENAQ_API_KEY || '';
 
 const GLOBAL_CITIES = [
   { name: 'New York', lat: 40.7128, lng: -74.0060 },

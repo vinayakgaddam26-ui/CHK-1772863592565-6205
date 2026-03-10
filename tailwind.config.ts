@@ -11,13 +11,13 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
         carbon: {
-          900: "#000000",
-          800: "#111111",
-          700: "#222222",
-          primary: "#FF0000", // sharp red highlight
-          alert: "#FF0000",
-          warn: "#FF0000",
-          success: "#FF0000"
+          900: "#090A0F",
+          800: "#13151A",
+          700: "#1E222B",
+          primary: "#00E5FF", // Neon Cyan
+          alert: "#FF2A5F",   // Neon Pink/Red
+          warn: "#FFC200",    // Neon Amber
+          success: "#00F98A"  // Neon Green
         }
       },
     },

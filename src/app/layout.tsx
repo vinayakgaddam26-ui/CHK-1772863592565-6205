@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: 'Smart City Carbon Dashboard',
   description: 'Real-time urban carbon emissions monitoring platform',
 }
+
 export default function RootLayout({
   children,
 }: {
