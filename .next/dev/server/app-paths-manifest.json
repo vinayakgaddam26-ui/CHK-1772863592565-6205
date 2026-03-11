@@ -1,0 +1,4 @@
+{
+  "/api/emissions/stream/route": "app/api/emissions/stream/route.js",
+  "/page": "app/page.js"
+}
