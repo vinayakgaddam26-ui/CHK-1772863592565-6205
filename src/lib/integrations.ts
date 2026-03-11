@@ -16,7 +16,7 @@ export async function fetchLiveEmissions() {
   const promises = GLOBAL_CITIES.map(async (city) => {
     let trafficLevel = 0;
     let infrastructure = 0;
-    let energyUsage = Math.floor(Math.random() * 50) + 20;
+    let energyUsage = 0;
 
     try {
       if (TOMTOM_API_KEY) {
@@ -28,31 +28,44 @@ export async function fetchLiveEmissions() {
           const congestionRatio = Math.max(0, (freeFlow - speed) / freeFlow);
           trafficLevel = 20 + (congestionRatio * 80);
         } else {
-          trafficLevel = Math.floor(Math.random() * 80) + 10;
+          trafficLevel = (city.name.charCodeAt(0) * 7) % 60 + 20;
         }
       } else {
-        trafficLevel = Math.floor(Math.random() * 80) + 10;
+        trafficLevel = (city.name.charCodeAt(0) * 7) % 60 + 20;
       }
     } catch {
-      trafficLevel = Math.floor(Math.random() * 80) + 10;
+      trafficLevel = (city.name.charCodeAt(0) * 7) % 60 + 20;
     }
 
     try {
       const options = OPENAQ_API_KEY ? { headers: { 'X-API-Key': OPENAQ_API_KEY } } : {};
-      const aqRes = await fetch(`https://api.openaq.org/v2/latest?coordinates=${city.lat},${city.lng}&radius=5000&limit=1`, options);
+      const aqRes = await fetch(`https://api.openaq.org/v3/locations?coordinates=${city.lat},${city.lng}&radius=25000&limit=1`, options);
       if (aqRes.ok) {
         const aqData = await aqRes.json();
         if (aqData.results && aqData.results.length > 0) {
-          const pm25 = aqData.results[0].measurements.find((m: any) => m.parameter === 'pm25')?.value || 0;
+          const sensors = aqData.results[0].sensors || [];
+          
+          const getParamName = (s: any) => {
+            if (s && s.parameter && typeof s.parameter === 'object' && s.parameter.name) {
+              return s.parameter.name.toLowerCase();
+            }
+            if (s && typeof s.parameter === 'string') {
+              return s.parameter.toLowerCase();
+            }
+            return '';
+          };
+          
+          const pm25Sensor = sensors.find((s: any) => getParamName(s) === 'pm25');
+          const pm25 = pm25Sensor?.latest?.value || pm25Sensor?.value || 0;
           infrastructure = Math.min(pm25 * 2, 100);
         } else {
-          infrastructure = Math.floor(Math.random() * 80) + 10;
+          infrastructure = 0;
         }
       } else {
-        infrastructure = Math.floor(Math.random() * 80) + 10;
+        infrastructure = 0;
       }
     } catch {
-      infrastructure = Math.floor(Math.random() * 80) + 10;
+      infrastructure = 0;
     }
 
     const trafficVal = Math.round(trafficLevel);

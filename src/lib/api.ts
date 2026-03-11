@@ -76,21 +76,17 @@ export async function fetchTrafficData(lat: number, lon: number) {
   return fallbackTraffic;
 }
 
-export async function fetchAirQualityData(cityName: string) {
+export async function fetchAirQualityData(lat: number, lon: number) {
   try {
-    // OpenAQ API v2
-    const res = await fetch(`https://api.openaq.org/v2/latest?city=${encodeURIComponent(cityName)}&limit=1`, {
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    const OPENAQ_API_KEY = process.env.OPENAQ_API_KEY;
+    const options = OPENAQ_API_KEY ? { headers: { 'X-API-Key': OPENAQ_API_KEY } } : {};
+    const res = await fetch(`https://api.openaq.org/v3/locations?coordinates=${lat},${lon}&radius=25000&limit=1`, options);
     if (!res.ok) {
-       // Graceful fallback if OpenAQ city search fails
        return null;
     }
     const data = await res.json();
     if (data.results && data.results.length > 0) {
-      return data.results[0]; // Object containing an array of measurements
+      return data.results[0]; 
     }
   } catch (error) {
     console.error('Error fetching air quality data:', error);

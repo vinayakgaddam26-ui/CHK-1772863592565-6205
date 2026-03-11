@@ -16,15 +16,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased h-screen w-screen bg-carbon-900 text-foreground flex overflow-hidden transition-colors duration-300">
+      <body className="antialiased w-screen bg-carbon-900 text-foreground flex flex-col overflow-x-hidden transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <Sidebar />
-          
-          <div className="flex-1 flex flex-col h-full bg-carbon-900 overflow-y-auto transition-colors duration-300">
+          <div className="fixed top-0 left-0 right-0 z-50">
             <Header />
-            <div className="p-6 relative z-0">
+          </div>
+
+          <div className="w-full h-screen relative z-0 flex-shrink-0 mt-20">
+            <iframe src='https://my.spline.design/sunny-SAYQkkgeFemwYO5RvSZziUCh/' frameBorder='0' width='100%' height='100%' className="absolute inset-0"></iframe>
+          </div>
+          
+          <div className="flex flex-col flex-1 w-full relative z-10 bg-transparent transition-colors duration-300">
+            <main className="flex-1 p-6 relative z-0 bg-carbon-900">
               {children}
-            </div>
+            </main>
           </div>
         </ThemeProvider>
       </body>

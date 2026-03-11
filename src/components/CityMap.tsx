@@ -52,13 +52,21 @@ export default function CityMap({ cityName, lat, lng, trafficLevel, infrastructu
     });
 
     for (let i = 1; i < 8; i++) {
-        // Random offsets roughly within city bounds
-        const latOffset = (Math.random() - 0.5) * 0.08;
-        const lngOffset = (Math.random() - 0.5) * 0.08;
+        const OFFSETS = [
+          { lat: 0.02, lng: 0.03, traffic: 10, infra: 5 },
+          { lat: -0.03, lng: -0.01, traffic: -10, infra: -5 },
+          { lat: 0.01, lng: -0.04, traffic: 5, infra: 10 },
+          { lat: -0.02, lng: 0.02, traffic: -5, infra: -2 },
+          { lat: 0.03, lng: -0.02, traffic: 15, infra: 8 },
+          { lat: -0.01, lng: 0.04, traffic: -8, infra: -10 },
+          { lat: 0.04, lng: 0.01, traffic: 12, infra: -4 }
+        ];
         
-        // Vary the readings
-        const trafficVariance = (Math.random() - 0.5) * 30;
-        const infraVariance = (Math.random() - 0.5) * 20;
+        const offset = OFFSETS[(i - 1) % OFFSETS.length];
+        const latOffset = offset.lat;
+        const lngOffset = offset.lng;
+        const trafficVariance = offset.traffic;
+        const infraVariance = offset.infra;
 
         const subTraffic = Math.max(0, Math.min(100, trafficLevel + trafficVariance));
         const subInfra = Math.max(0, Math.min(100, infrastructureScore + infraVariance));

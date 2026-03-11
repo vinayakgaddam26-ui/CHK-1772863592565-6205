@@ -5,10 +5,9 @@ import Link from 'next/link';
 
 export default function Sidebar() {
   return (
-    <aside className="w-64 glass-panel border-r border-[#ffffff10] flex flex-col h-full sticky top-0 bg-carbon-900/80 z-20">
-      <div className="p-6 flex items-center space-x-3">
-        <Image src="/logo.png" width={32} height={32} alt="Logo" />
-        <span className="text-xl font-bold text-white">CarbonEye</span>
+    <aside className="w-64 glass-panel border-r border-[#ffffff10] flex flex-col h-screen sticky top-0 bg-carbon-900/100 z-20">
+      <div className="p-6 flex items-center">
+        <Image src="/logo.png" width={220} height={55} className="w-auto h-10" alt="CarbonEye Logo" priority />
       </div>
       
       <nav className="flex-1 px-4 space-y-2 mt-4">

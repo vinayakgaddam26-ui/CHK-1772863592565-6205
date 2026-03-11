@@ -41,42 +41,19 @@ export default function Dashboard() {
       <SummaryCards />
 
       {/* Grid for Maps and Charts placeholder */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
         
         {/* Mapbox & ThreeJS Overlay */}
-        <div className="lg:col-span-2">
+        <div>
           <MapOverlay />
         </div>
 
-        <div className="space-y-6 flex flex-col">
-          {/* 3D Spline Element */}
-          <div className="glass-panel rounded-2xl overflow-hidden min-h-[300px] border border-[#ffffff10] relative flex-1">
-            <iframe src='https://my.spline.design/earthdayandnight-r5mPoaK6GY7RIR7ylbQtJdgV/' frameBorder='0' width='100%' height='100%' className="absolute inset-0"></iframe>
+          <div className="space-y-6 flex flex-col min-h-full">
+            {/* 3D Spline Element */}
+            <div className="glass-panel rounded-2xl border border-[#ffffff10] relative flex-1 min-h-[500px]">
+              <iframe src='https://my.spline.design/earthdayandnight-CkKRizZhdHjocGEHGg6D45Ud/' frameBorder='0' width='100%' height='100%' className="absolute inset-0 rounded-2xl"></iframe>
+            </div>
           </div>
-
-          {/* Recommendations Area */}
-          <div className="glass-panel rounded-2xl p-6 border border-[#ffffff10]">
-            <h3 className="text-lg font-bold text-white mb-4">Mitigation Protocol</h3>
-            <ul className="space-y-4">
-              <li className="flex gap-3">
-                <div className="w-2 h-2 rounded-full bg-carbon-alert mt-2"></div>
-                <div>
-                  <h4 className="text-sm font-medium text-white">Reroute Heavy Traffic</h4>
-                  <p className="text-xs text-white/60">Downtown district showing 24% spike in emissions.</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <div className="w-2 h-2 rounded-full bg-carbon-warn mt-2"></div>
-                <div>
-                  <h4 className="text-sm font-medium text-white">Grid Balancing</h4>
-                  <p className="text-xs text-white/60">Shift industrial load to off-peak hours.</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-
-        </div>
 
       </div>
     </main>

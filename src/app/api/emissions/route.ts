@@ -15,9 +15,9 @@ let cachedData: any[] = [];
 function generateMockData() {
   return mockZones.map((zone) => {
     const multiplier = (zone.name.includes('Industrial') || zone.name.includes('Downtown')) ? 1.5 : 1;
-    const trafficLevel = Math.floor(Math.random() * 80 * multiplier) + 20;
-    const energyUsage = Math.floor(Math.random() * 90 * multiplier) + 30;
-    const infrastructure = Math.floor(Math.random() * 60 * multiplier) + 10;
+    const trafficLevel = 30 * multiplier;
+    const energyUsage = 40 * multiplier;
+    const infrastructure = 20 * multiplier;
     return {
       zone: zone.name,
       lat: zone.lat,
@@ -35,14 +35,12 @@ export async function GET() {
   if (cachedData.length === 0) {
     cachedData = generateMockData();
   }
-  // Simulate live updates
+  
   cachedData = cachedData.map(d => {
-     const newTraffic = Math.max(0, Math.floor(d.trafficLevel + (Math.random() * 10 - 5)));
      return {
        ...d,
-       trafficLevel: newTraffic,
-       totalEmissions: newTraffic + d.energyUsage + d.infrastructure
-     }
+       timestamp: new Date()
+     };
   });
 
   return NextResponse.json({ success: true, data: cachedData }, { status: 200 });

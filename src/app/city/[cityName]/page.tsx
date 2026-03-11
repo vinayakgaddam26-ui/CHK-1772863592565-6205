@@ -45,44 +45,50 @@ function normalizeTraffic(flowData: any, cityName: string) {
   };
 }
 
-function normalizeAQI(aqiData: any, cityName: string) {
-  if (!aqiData || !aqiData.measurements || aqiData.measurements.length === 0) {
-    // Generate pseudo-random AQI based on city
-    const pseudoVal = (hashString(cityName + "aqi") % 80) + 5; // 5 to 85 range
-    let score = 50;
-    let status = 'Moderate';
-    
-    if (pseudoVal < 12) { score = 20; status = 'Good'; }
-    else if (pseudoVal < 35) { score = 40; status = 'Moderate'; }
-    else if (pseudoVal < 55) { score = 70; status = 'Unhealthy'; }
-    else { score = 85; status = 'Hazardous'; }
-
-    return { score, primaryPollutant: 'pm25', value: `${pseudoVal} µg/m³`, status };
+function normalizeAQI(aqiData: any) {
+  if (!aqiData || !aqiData.sensors || aqiData.sensors.length === 0) {
+    return { score: 0, primaryPollutant: 'N/A', value: 'N/A', status: 'Unknown' };
   }
   
-  // Find a dominant pollutant like PM2.5 or just use the first available
-  const pm25 = aqiData.measurements.find((m: any) => m.parameter === 'pm25');
-  const targetMeasurement = pm25 || aqiData.measurements[0];
+  const getParamName = (s: any) => {
+    if (s && s.parameter && typeof s.parameter === 'object' && s.parameter.name) {
+      return s.parameter.name.toLowerCase();
+    }
+    if (s && typeof s.parameter === 'string') {
+      return s.parameter.toLowerCase();
+    }
+    return '';
+  };
+
+  const pm25Sensor = aqiData.sensors.find((s: any) => getParamName(s) === 'pm25');
   
-  // Rough normalization for visual purposes
-  let score = 50;
-  let status = 'Moderate';
+  const targetSensor = pm25Sensor || aqiData.sensors[0];
+  const value = targetSensor.latest?.value || targetSensor.value || 0;
   
-  if (targetMeasurement.parameter === 'pm25') {
-    const val = targetMeasurement.value;
-    if (val < 12) { score = 20; status = 'Good'; }
-    else if (val < 35) { score = 40; status = 'Moderate'; }
-    else if (val < 55) { score = 70; status = 'Unhealthy'; }
+  let parameterName = 'Unknown';
+  if (targetSensor.parameter && typeof targetSensor.parameter === 'object') {
+     parameterName = targetSensor.parameter.name || 'Unknown';
+  } else if (typeof targetSensor.parameter === 'string') {
+     parameterName = targetSensor.parameter;
+  }
+  
+  let score = 0;
+  let status = 'Unknown';
+  
+  if (parameterName.toLowerCase() === 'pm25') {
+    if (value < 12) { score = 20; status = 'Good'; }
+    else if (value < 35) { score = 40; status = 'Moderate'; }
+    else if (value < 55) { score = 70; status = 'Unhealthy'; }
     else { score = 90; status = 'Hazardous'; }
   } else {
-    // Generic fallback mapping
-    score = Math.min(100, Math.max(10, targetMeasurement.value * 2));
+    score = Math.min(100, Math.max(0, value * 2));
+    status = score > 60 ? 'Unhealthy' : (score > 30 ? 'Moderate' : 'Good');
   }
   
   return {
     score,
-    primaryPollutant: targetMeasurement.parameter,
-    value: `${targetMeasurement.value} ${targetMeasurement.unit}`,
+    primaryPollutant: parameterName,
+    value: `${Math.round(value)} µg/m³`,
     status
   };
 }
@@ -101,23 +107,22 @@ export default async function CityDetailsPage({ params }: { params: Promise<{ ci
   if (coords) {
     [trafficRaw, aqiRaw] = await Promise.all([
       fetchTrafficData(coords.lat, coords.lon),
-      fetchAirQualityData(cityName)
+      fetchAirQualityData(coords.lat, coords.lon)
     ]);
   } else {
-    // If geocoding failed, attempt AQI anyway based on name string
-    aqiRaw = await fetchAirQualityData(cityName);
+    // If geocoding failed, we can't reliably get AQI without coordinates
+    aqiRaw = null;
   }
   
   const traffic = normalizeTraffic(trafficRaw, cityName);
-  const aqi = normalizeAQI(aqiRaw, cityName);
+  const aqi = normalizeAQI(aqiRaw);
   
   // Calculate a generic visual "Total Emissions" proxy for the display card
   const totalEmissionsScore = Math.round((traffic.level * 1.5) + (aqi.score * 2.5));
   
-  // Add some pseudo-random variances for Trend indications based on city
-  const totalTrend = (hashString(cityName + "t") % 5) + 1;
-  const trafficTrend = (hashString(cityName + "tr") % 4) + 1;
-  const aqiTrend = (hashString(cityName + "aq") % 8) + 1;
+  const totalTrend = 0;
+  const trafficTrend = 0;
+  const aqiTrend = 0;
 
   return (
     <div className="space-y-6">

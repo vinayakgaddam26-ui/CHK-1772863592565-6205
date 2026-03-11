@@ -38,6 +38,10 @@
   --carbon-success: #16A34A;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
@@ -45,6 +49,7 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 /* Glassmorphism utilities */
